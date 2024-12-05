@@ -25,11 +25,15 @@ export default function AssignmentCoverGenerator() {
 
   const handleSubmit = (e) => {
     e.preventDefault()
+    console.log("Form submitted")
     const doc = new jsPDF()
     const pageWidth = doc.internal.pageSize.getWidth()
     const pageHeight = doc.internal.pageSize.getHeight()
     
+    // Generate the PDF
     generateCoverPDF(coverDetails, doc, pageWidth, pageHeight)
+
+    // Save the PDF - Ensure this is only called once
     doc.save('assignment-cover.pdf')
   }
 
@@ -46,9 +50,7 @@ export default function AssignmentCoverGenerator() {
           <h3 className="text-lg font-medium text-gray-900">Course Information</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Course Title
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Course Title</label>
               <input
                 type="text"
                 name="courseTitle"
@@ -58,9 +60,7 @@ export default function AssignmentCoverGenerator() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Course Code
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Course Code</label>
               <input
                 type="text"
                 name="courseCode"
@@ -70,9 +70,7 @@ export default function AssignmentCoverGenerator() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Assignment No
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Assignment No</label>
               <input
                 type="text"
                 name="assignmentNo"
@@ -89,9 +87,7 @@ export default function AssignmentCoverGenerator() {
           <h3 className="text-lg font-medium text-gray-900">Student Information</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Student Name
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Student Name</label>
               <input
                 type="text"
                 name="studentName"
@@ -101,9 +97,7 @@ export default function AssignmentCoverGenerator() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Student ID
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Student ID</label>
               <input
                 type="text"
                 name="studentId"
@@ -113,9 +107,7 @@ export default function AssignmentCoverGenerator() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Intake
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Intake</label>
               <input
                 type="text"
                 name="intake"
@@ -125,9 +117,7 @@ export default function AssignmentCoverGenerator() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Section
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Section</label>
               <input
                 type="text"
                 name="section"
@@ -137,9 +127,7 @@ export default function AssignmentCoverGenerator() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Program
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Program</label>
               <input
                 type="text"
                 name="program"
@@ -156,9 +144,7 @@ export default function AssignmentCoverGenerator() {
           <h3 className="text-lg font-medium text-gray-900">Instructor Information</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Instructor Name
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Instructor Name</label>
               <input
                 type="text"
                 name="instructorName"
@@ -168,9 +154,7 @@ export default function AssignmentCoverGenerator() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Department
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
               <input
                 type="text"
                 name="department"
@@ -184,9 +168,7 @@ export default function AssignmentCoverGenerator() {
 
         {/* Submission Date */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Submission Date
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Submission Date</label>
           <input
             type="date"
             name="submissionDate"
@@ -205,4 +187,4 @@ export default function AssignmentCoverGenerator() {
       </form>
     </div>
   )
-} 
+}
