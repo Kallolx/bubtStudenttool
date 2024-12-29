@@ -280,9 +280,9 @@ export default function App() {
                   />
                   <div>
                     <h1 className="text-xl font-semibold">Hi, Bubtians👋</h1>
-                  </div>
-                </div>
-                
+        </div>
+      </div>
+
                 {/* Credits Indicator */}
                 <motion.div 
                   className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 rounded-full border border-blue-100"
@@ -321,7 +321,7 @@ export default function App() {
                     </motion.button>
                   </Tippy>
                 </motion.div>
-              </div>
+            </div>
 
               {/* Enhanced Banner Section - Single Video */}
               <div className="relative w-full h-48 rounded-3xl overflow-hidden mb-8">
@@ -409,54 +409,50 @@ export default function App() {
                       </motion.div>
                     ))}
                   </div>
-                </div>
-              </div>
-
-              {/* Promotional Card - Right after banner */}
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                onClick={() => setActiveTab('Settings')}
-                className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-8"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-xl bg-blue-50 p-2.5">
-                      <img 
-                        src="/images/stickers/gift.png"
-                        alt="Premium"
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="text-sm font-medium text-gray-900">Get More Credits</h3>
-                        <span className="px-2 py-0.5 text-xs font-medium text-blue-600 bg-blue-50 rounded-full">
-                          Free
-                        </span>
-                      </div>
-                      <p className="text-xs text-gray-500">Use promo code or complete tasks</p>
-                    </div>
-                  </div>
-                  <motion.div
-                    whileHover={{ scale: 1.1 }}
-                    className="w-8 h-8 flex items-center justify-center rounded-xl bg-blue-50 text-blue-600"
-                  >
-                    <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                    </svg>
-                  </motion.div>
-                </div>
-              </motion.div>
+        </div>
+      </div>
 
               {/* Tools Section */}
               <div className="mb-8">
-                {/* Get More Credits Banner */}
-                <div className="flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm mb-4">
-                  <div className="flex items-center gap-3">
-                    <img src="/images/stickers/gift.png" alt="Gift" className="w-12 h-12" />
-                    {/* Banner content */}
-                  </div>
+                {/* Add the single Get More Credits banner here */}
+                {!promoUsed && (
+                  <div className="flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm mb-4 cursor-pointer"
+                    onClick={() => {
+                      setCurrentTool({
+                        component: Settings,
+                        name: 'Settings'
+                      });
+                      setActiveTab('Settings');
+                    }}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-xl bg-blue-50 p-2.5">
+                        <img 
+                          src="/images/stickers/gift.png"
+                          alt="Premium"
+                          className="w-full h-full object-contain"
+                        />
+                      </div>
+              <div>
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-sm font-medium text-gray-900">Get More Credits</h3>
+                          <span className="px-2 py-0.5 text-xs font-medium text-blue-600 bg-blue-50 rounded-full">
+                            Free
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-500">Use promo code or complete tasks</p>
+                      </div>
+                    </div>
+                    <motion.div
+                      whileHover={{ scale: 1.1 }}
+                      className="w-8 h-8 flex items-center justify-center rounded-xl bg-blue-50 text-blue-600"
+                    >
+                      <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </motion.div>
                 </div>
+                )}
 
                 <div className="grid grid-cols-2 gap-3">
                   {/* Available Tools */}
@@ -610,8 +606,8 @@ export default function App() {
                         className="w-16 h-16 mx-auto mb-3 opacity-50"
                       />
                       <p className="text-sm text-gray-500">No recent activities yet</p>
-                    </div>
-                  ) : (
+              </div>
+            ) : (
                     <AnimatePresence mode="popLayout">
                       {recentActivities.map((activity) => (
                         <motion.div
@@ -643,8 +639,8 @@ export default function App() {
                                   <span className="text-xs text-blue-500 bg-blue-50 px-1.5 
                                     py-0.5 rounded-full">
                                     {activity.details.coverType}
-                                  </span>
-                                </div>
+                        </span>
+                      </div>
                               </div>
                             </div>
 
@@ -676,46 +672,6 @@ export default function App() {
                   )}
                 </div>
               </div>
-
-              {/* After Recent Activity Section */}
-              {!promoUsed && (
-                <div className="mt-8">
-                  <motion.div
-                    whileHover={{ scale: 1.02 }}
-                    onClick={() => setActiveTab('Settings')}
-                    className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-xl bg-blue-50 p-2.5">
-                          <img 
-                            src="/images/stickers/gift.png"
-                            alt="Premium"
-                            className="w-full h-full object-contain"
-                          />
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <h3 className="text-sm font-medium text-gray-900">Get More Credits</h3>
-                            <span className="px-2 py-0.5 text-xs font-medium text-blue-600 bg-blue-50 rounded-full">
-                              Free
-                            </span>
-                          </div>
-                          <p className="text-xs text-gray-500">Use promo code or complete tasks</p>
-                        </div>
-                      </div>
-                      <motion.div
-                        whileHover={{ scale: 1.1 }}
-                        className="w-8 h-8 flex items-center justify-center rounded-xl bg-blue-50 text-blue-600"
-                      >
-                        <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                        </svg>
-                      </motion.div>
-                    </div>
-                  </motion.div>
-                </div>
-              )}
             </div>
           </motion.div>
         )}
