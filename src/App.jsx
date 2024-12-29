@@ -450,6 +450,14 @@ export default function App() {
 
               {/* Tools Section */}
               <div className="mb-8">
+                {/* Get More Credits Banner */}
+                <div className="flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm mb-4">
+                  <div className="flex items-center gap-3">
+                    <img src="/images/stickers/gift.png" alt="Gift" className="w-12 h-12" />
+                    {/* Banner content */}
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-2 gap-3">
                   {/* Available Tools */}
                   {tools.map((tool) => (
