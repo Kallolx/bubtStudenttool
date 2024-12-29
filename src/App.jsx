@@ -324,7 +324,7 @@ export default function App() {
               </div>
 
               {/* Enhanced Banner Section - Single Video */}
-              <div className="relative w-full h-48 rounded-3xl overflow-hidden mb-4">
+              <div className="relative w-full h-48 rounded-3xl overflow-hidden mb-8">
                 {/* Video Background */}
                 <div className="absolute inset-0">
                   <video
@@ -339,7 +339,6 @@ export default function App() {
                       type="video/mp4" 
                     />
                   </video>
-                  {/* Removed gradient overlay */}
                 </div>
 
                 {/* Content */}
