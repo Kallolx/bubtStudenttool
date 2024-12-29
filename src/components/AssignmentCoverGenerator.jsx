@@ -5,7 +5,7 @@ import generateMinimalCoverPDF from '../templates/MinimalTemplate'
 import generateDarkCoverPDF from '../templates/DarkTemplate'
 import { motion, AnimatePresence } from 'framer-motion'
 
-export default function AssignmentCoverGenerator({ onBack }) {
+export default function AssignmentCoverGenerator({ onBack, trackActivity, creditsLeft, setCreditsLeft }) {
   const [coverType, setCoverType] = useState('assignment')
   const [coverDetails, setCoverDetails] = useState({
     courseTitle: '',
@@ -24,6 +24,7 @@ export default function AssignmentCoverGenerator({ onBack }) {
     studentSignature: '',
   })
   const [selectedTemplate, setSelectedTemplate] = useState('modern')
+  const [showCreditWarning, setShowCreditWarning] = useState(false);
 
   const handleCoverChange = (e) => {
     const { name, value } = e.target
@@ -32,6 +33,12 @@ export default function AssignmentCoverGenerator({ onBack }) {
 
   const handleSubmit = (e) => {
     e.preventDefault()
+    
+    // Check credits before generating
+    if (creditsLeft <= 0) {
+      setShowCreditWarning(true);
+      return;
+    }
     
     try {
       const doc = new jsPDF()
@@ -47,16 +54,33 @@ export default function AssignmentCoverGenerator({ onBack }) {
         generateDarkCoverPDF(coverDetails, doc, pageWidth, pageHeight, coverType)
       }
 
-      doc.save(`${coverType}-cover.pdf`)
+      // Format filename: StudentID_DocumentType
+      const cleanStudentId = coverDetails.studentId.trim().replace(/[^0-9]/g, '')
+      const documentType = coverType.charAt(0).toUpperCase() + coverType.slice(1)
+      const filename = `${cleanStudentId}_${documentType}`
+
+      // Save with formatted filename
+      doc.save(`${filename}.pdf`)
+
+      // Update credits after successful generation
+      setCreditsLeft(prev => prev - 1);
+
+      // Track the activity
+      trackActivity('cover', {
+        title: filename,
+        coverType,
+        filename,
+        ...coverDetails
+      })
     } catch (error) {
       console.error("Error generating PDF:", error)
     }
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 overflow-y-auto pb-24">
       {/* Header */}
-      <div className="bg-white">
+      <div className="bg-white sticky top-0 z-10">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="py-4">
             <div className="flex items-center space-x-4">
@@ -133,26 +157,43 @@ export default function AssignmentCoverGenerator({ onBack }) {
             </div>
           </button>
 
-          {/* Project Report - Coming Soon */}
-          <div className="relative col-span-2">
-            <div className="rounded-2xl p-6 bg-gray-50 border-2 border-dashed border-gray-200">
-              <div className="flex flex-col items-center opacity-60">
-                <img 
-                  src="/images/stickers/project.png"
-                  alt="Project Report"
-                  className="w-12 h-12 mb-3 grayscale"
-                />
-                <h3 className="text-lg font-semibold text-gray-600">Project Report</h3>
-                <p className="text-sm mt-1 text-gray-500">
-                  Generate project report cover page
-                </p>
+          {/* Project Report & Proposal - Coming Soon */}
+          <div className="grid grid-cols-2 gap-3 col-span-2 mt-2">
+            {/* Project Report */}
+            <div className="relative">
+              <div className="rounded-xl p-4 bg-gray-50 border border-dashed border-gray-200">
+                <div className="flex items-center opacity-60 gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-gray-100 p-2">
+                    <img 
+                      src="/images/stickers/project.png"
+                      alt="Project Report"
+                      className="w-full h-full object-contain grayscale"
+                    />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-600">Project Report</h3>
+                    <p className="text-xs text-gray-500">Coming soon</p>
+                  </div>
+                </div>
               </div>
-              
-              {/* Coming Soon Badge */}
-              <div className="absolute top-4 right-4">
-                <span className="px-2 py-1 bg-blue-100 text-blue-600 text-xs font-medium rounded-full">
-                  Coming Soon
-                </span>
+            </div>
+
+            {/* Project Proposal */}
+            <div className="relative">
+              <div className="rounded-xl p-4 bg-gray-50 border border-dashed border-gray-200">
+                <div className="flex items-center opacity-60 gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-gray-100 p-2">
+                    <img 
+                      src="/images/stickers/proposal.png"
+                      alt="Project Proposal"
+                      className="w-full h-full object-contain grayscale"
+                    />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-600">Project Proposal</h3>
+                    <p className="text-xs text-gray-500">Coming soon</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -204,87 +245,75 @@ export default function AssignmentCoverGenerator({ onBack }) {
             </div>
 
             {/* Template Cards Container */}
-            <div className="relative">
-              <div 
-                className="templates-container overflow-x-auto hide-scrollbar snap-x snap-mandatory"
-                style={{ scrollBehavior: 'smooth' }}
-              >
-                <div className="flex space-x-4 px-1 py-2">
-                  {[
-                    {
-                      id: 'modern',
-                      name: 'Modern Template',
-                      description: 'Clean and professional',
-                      image: '/images/preview.png'
-                    },
-                    {
-                      id: 'minimal',
-                      name: 'Minimal Template',
-                      description: 'Clean and elegant',
-                      image: '/images/preview2.png'
-                    },
-                    {
-                      id: 'dark',
-                      name: 'Bold Template',
-                      description: 'Modern and sleek',
-                      image: '/images/preview3.png'
-                    }
-                  ].map((template) => (
-                    <motion.div
-                      key={template.id}
-                      className="snap-center"
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3 }}
+            <div className="templates-container overflow-x-auto hide-scrollbar snap-x snap-mandatory">
+              <div className="flex space-x-3 px-1 py-2">
+                {[
+                  {
+                    id: 'modern',
+                    name: 'Modern Template',
+                    description: 'Clean and professional',
+                    image: '/images/preview.png'
+                  },
+                  {
+                    id: 'minimal',
+                    name: 'Minimal Template',
+                    description: 'Clean and elegant',
+                    image: '/images/preview2.png'
+                  },
+                  {
+                    id: 'dark',
+                    name: 'Bold Template',
+                    description: 'Modern and sleek',
+                    image: '/images/preview3.png'
+                  }
+                ].map((template) => (
+                  <motion.div
+                    key={template.id}
+                    className="snap-center"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <motion.button
+                      type="button"
+                      onClick={() => setSelectedTemplate(template.id)}
+                      className={`relative rounded-xl overflow-hidden flex-shrink-0 w-44 transition-all duration-200 
+                        ${selectedTemplate === template.id
+                          ? 'ring-2 ring-blue-600 ring-offset-2 shadow-lg'
+                          : 'hover:shadow-lg shadow-md'
+                        }`}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
                     >
-                      <motion.button
-                        type="button"
-                        onClick={() => setSelectedTemplate(template.id)}
-                        className={`relative rounded-xl overflow-hidden flex-shrink-0 w-56 transition-all duration-200 
-                          ${selectedTemplate === template.id
-                            ? 'ring-2 ring-blue-600 ring-offset-2 shadow-lg'
-                            : 'hover:shadow-lg shadow-md'
-                          }`}
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                      >
-                        <div className="aspect-[4/5] w-full relative bg-gray-100">
-                          <img 
-                            src={template.image}
-                            alt={template.name}
-                            className="w-full h-full object-cover"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                          
-                          <div className="absolute bottom-0 left-0 right-0 p-4">
-                            <h3 className="text-white font-medium text-sm mb-1">{template.name}</h3>
-                            <p className="text-white/90 text-xs">{template.description}</p>
-                          </div>
-
-                          {selectedTemplate === template.id && (
-                            <motion.div
-                              initial={{ scale: 0 }}
-                              animate={{ scale: 1 }}
-                              className="absolute top-3 right-3 w-7 h-7 bg-blue-600 rounded-full 
-                                flex items-center justify-center shadow-lg"
-                            >
-                              <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                              </svg>
-                            </motion.div>
-                          )}
-
-                          <div className="absolute top-3 left-3">
-                            <span className="px-2 py-1 bg-blue-600/90 backdrop-blur-sm text-white text-[10px] 
-                              font-medium rounded-full shadow-sm">
-                              Available
-                            </span>
-                          </div>
+                      <div className="aspect-[3/4] w-full relative bg-gray-100">
+                        <img 
+                          src={template.image}
+                          alt={template.name}
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                        
+                        <div className="absolute bottom-0 left-0 right-0 p-3">
+                          <h3 className="text-white font-medium text-xs mb-0.5">{template.name}</h3>
+                          <p className="text-white/90 text-[10px]">{template.description}</p>
                         </div>
-                      </motion.button>
-                    </motion.div>
-                  ))}
-                </div>
+
+                        {selectedTemplate === template.id && (
+                          <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            className="absolute top-2 right-2 w-6 h-6 bg-blue-600 rounded-full 
+                              flex items-center justify-center shadow-lg"
+                          >
+                            <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                          </motion.div>
+                        )}
+                      </div>
+                    </motion.button>
+                  </motion.div>
+                ))}
               </div>
             </div>
           </div>
@@ -495,25 +524,80 @@ export default function AssignmentCoverGenerator({ onBack }) {
             </div>
 
             {/* Generate Button */}
-            <motion.button
-              type="submit"
-              whileHover={{ scale: 1.01 }}
-              whileTap={{ scale: 0.99 }}
-              className="w-full bg-blue-600 text-white py-4 px-6 rounded-xl font-medium hover:bg-blue-700 
-                focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 
-                transition-colors duration-200 flex items-center justify-center space-x-2"
-              onClick={handleSubmit}
-            >
-              <img 
-                src="/images/stickers/magic.png"
-                alt="Generate"
-                className="w-6 h-6"
-              />
-              <span>Generate Cover Page</span>
-            </motion.button>
+            <div className="sticky bottom-20 left-0 right-0 p-4 bg-gradient-to-t from-gray-50 pt-10 mt-8">
+              <motion.button
+                type="submit"
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
+                className="w-full bg-blue-600 text-white py-4 px-6 rounded-xl font-medium 
+                  hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 
+                  focus:ring-blue-500 transition-colors duration-200 flex items-center 
+                  justify-center space-x-2 shadow-lg"
+                onClick={handleSubmit}
+              >
+                <img src="/images/stickers/magic.png" alt="Generate" className="w-6 h-6" />
+                <span>Generate Cover Page</span>
+              </motion.button>
+
+              {/* Credits Info */}
+              <div className="mt-4 text-center">
+                <p className="text-sm text-gray-500">
+                  You have <span className="font-medium text-blue-600">{creditsLeft}</span> generations left today
+                </p>
+                <p className="text-xs text-gray-400 mt-1">
+                  Limit resets daily at 12:00 AM
+                </p>
+              </div>
+            </div>
           </form>
         )}
       </div>
+
+      {/* Credit Warning Modal */}
+      <AnimatePresence>
+        {showCreditWarning && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setShowCreditWarning(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="text-center">
+                <div className="w-16 h-16 rounded-xl bg-blue-50 mx-auto mb-4 flex items-center justify-center">
+                  <img 
+                    src="/images/stickers/broke.png" 
+                    alt="No Credits"
+                    className="w-10 h-10 object-contain" 
+                  />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  Out of Credits
+                </h3>
+                <p className="text-sm text-gray-500 mb-6">
+                  You've reached your daily generation limit. Credits will reset at midnight.
+                </p>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setShowCreditWarning(false)}
+                  className="w-full py-3 bg-blue-600 text-white rounded-xl font-medium 
+                    hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20"
+                >
+                  Got it
+                </motion.button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

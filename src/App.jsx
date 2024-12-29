@@ -1,12 +1,39 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import TimetablePlanner from './components/TimetablePlanner'
 import GradeTracker from './components/GradeTracker'
 import GpaTargetCalculator from './components/GpaTargetCalculator'
 import AssignmentCoverGenerator from './components/AssignmentCoverGenerator'
+import Tippy from '@tippyjs/react'
+import Settings from './components/Settings'
 
 export default function App() {
   const [currentTool, setCurrentTool] = useState(null)
+  const [creditsLeft, setCreditsLeft] = useState(() => {
+    const saved = localStorage.getItem('creditsLeft');
+    return saved ? parseInt(saved) : 5;
+  });
+  const [showMoreTools, setShowMoreTools] = useState(false)
+  const [activeTab, setActiveTab] = useState('Home')
+  const [recentActivities, setRecentActivities] = useState(() => {
+    const saved = localStorage.getItem('recentActivities');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [promoUsed, setPromoUsed] = useState(() => {
+    return localStorage.getItem('usedPromoCode') === 'true';
+  });
+
+  const documentIcons = {
+    pdf: (
+      <div className="w-full h-full flex items-center justify-center">
+        <img 
+          src="/recent/pdf.png" 
+          alt="PDF" 
+          className="w-5 h-5 object-contain"
+        />
+      </div>
+    )
+  };
 
   const tools = [
     {
@@ -32,6 +59,87 @@ export default function App() {
       name: 'Result Tracker',
       icon: '/images/stickers/4.gif',
       component: GradeTracker
+    }
+  ]
+
+  const upcomingTools = [
+    {
+      id: 'club_tools',
+      name: 'Club Tools',
+      icon: '/images/stickers/5.gif',
+      status: 'Coming Soon'
+    },
+    {
+      id: 'Assignment Helper',
+      name: 'Assignment Helper',
+      icon: '/images/stickers/6.gif',
+      status: 'Coming Soon'
+    },
+    {
+      id: 'Sports Tools',
+      name: 'Sports Tools',
+      icon: '/images/stickers/7.gif',
+      status: 'Coming Soon'
+    },
+    {
+      id: 'Merch Tools',
+      name: 'Merch Tools',
+      icon: '/images/stickers/8.gif',
+      status: 'Coming Soon'
+    }
+    
+  ]
+
+  const bannerBadges = [
+    { text: "BETA ACCESS", type: "status" },
+    { text: "Free to Use", type: "feature" }
+  ];
+
+  const navItems = [
+    {
+      name: 'Home',
+      icon: (active) => (
+        <div className={`p-2 rounded-xl bg-gradient-to-br transition-all duration-200 ${
+          active 
+            ? 'from-blue-500/20 to-blue-600/20 text-blue-600' 
+            : 'from-gray-100 to-gray-50 text-gray-600'
+        }`}>
+          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M11.47 3.84a.75.75 0 011.06 0l8.69 8.69a.75.75 0 101.06-1.06l-8.689-8.69a2.25 2.25 0 00-3.182 0l-8.69 8.69a.75.75 0 001.061 1.06l8.69-8.69z" />
+            <path d="M12 5.432l8.159 8.159c.03.03.06.058.091.086v6.198c0 1.035-.84 1.875-1.875 1.875H15a.75.75 0 01-.75-.75v-4.5a.75.75 0 00-.75-.75h-3a.75.75 0 00-.75.75V21a.75.75 0 01-.75.75H5.625a1.875 1.875 0 01-1.875-1.875v-6.198a2.29 2.29 0 00.091-.086L12 5.43z" />
+          </svg>
+        </div>
+      )
+    },
+    {
+      name: 'Create',
+      icon: (active) => (
+        <div 
+          onClick={() => setCurrentTool(tools[0])}
+          className={`p-3 rounded-2xl bg-blue-600 -mt-6 shadow-lg shadow-blue-600/30 ${
+            active ? 'bg-blue-700' : ''
+          }`}
+        >
+          <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4"/>
+          </svg>
+        </div>
+      )
+    },
+    {
+      name: 'Settings',
+      component: Settings,
+      icon: (active) => (
+        <div className={`p-2 rounded-xl bg-gradient-to-br transition-all duration-200 ${
+          active 
+            ? 'from-blue-500/20 to-blue-600/20 text-blue-600' 
+            : 'from-gray-100 to-gray-50 text-gray-600'
+        }`}>
+          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+            <path fillRule="evenodd" d="M11.078 2.25c-.917 0-1.699.663-1.85 1.567L9.05 4.889c-.02.12-.115.26-.297.348a7.493 7.493 0 00-.986.57c-.166.115-.334.126-.45.083L6.3 5.508a1.875 1.875 0 00-2.282.819l-.922 1.597a1.875 1.875 0 00.432 2.385l.84.692c.095.078.17.229.154.43a7.598 7.598 0 000 1.139c.015.2-.059.352-.153.43l-.841.692a1.875 1.875 0 00-.432 2.385l.922 1.597a1.875 1.875 0 002.282.818l1.019-.382c.115-.043.283-.031.45.082.312.214.641.405.985.57.182.088.277.228.297.35l.178 1.071c.151.904.933 1.567 1.85 1.567h1.844c.916 0 1.699-.663 1.85-1.567l.178-1.072c.02-.12.114-.26.297-.349.344-.165.673-.356.985-.57.167-.114.335-.125.45-.082l1.02.382a1.875 1.875 0 002.28-.819l.923-1.597a1.875 1.875 0 00-.432-2.385l-.84-.692c-.095-.078-.17-.229-.154-.43a7.614 7.614 0 000-1.139c-.016-.2.059-.352.153-.43l.84-.692c.708-.582.891-1.59.433-2.385l-.922-1.597a1.875 1.875 0 00-2.282-.818l-1.02.382c-.114.043-.282.031-.449-.083a7.49 7.49 0 00-.985-.57c-.183-.087-.277-.227-.297-.348l-.179-1.072a1.875 1.875 0 00-1.85-1.567h-1.843zM12 15.75a3.75 3.75 0 100-7.5 3.75 3.75 0 000 7.5z" clipRule="evenodd" />
+          </svg>
+        </div>
+      )
     }
   ]
 
@@ -98,8 +206,43 @@ export default function App() {
     );
   };
 
+  const trackActivity = (toolType, details) => {
+    const newActivity = {
+      id: Date.now(),
+      type: toolType,
+      details: details,
+      timestamp: new Date().toISOString(),
+    };
+
+    setRecentActivities(prev => {
+      const updated = [newActivity, ...prev].slice(0, 5); // Keep only last 5 activities
+      localStorage.setItem('recentActivities', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  useEffect(() => {
+    // Save credits to localStorage whenever it changes
+    localStorage.setItem('creditsLeft', creditsLeft.toString());
+  }, [creditsLeft]);
+
+  useEffect(() => {
+    const now = new Date();
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+    
+    const timeUntilReset = tomorrow - now;
+    
+    const timer = setTimeout(() => {
+      setCreditsLeft(5);
+    }, timeUntilReset);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pb-20">
       <AnimatePresence mode="wait">
         {currentTool ? (
           <motion.div
@@ -109,7 +252,13 @@ export default function App() {
             exit={{ opacity: 0, y: -20 }}
             className="h-screen"
           >
-            <currentTool.component onBack={() => setCurrentTool(null)} />
+            <currentTool.component 
+              onBack={() => setCurrentTool(null)} 
+              trackActivity={trackActivity}
+              creditsLeft={creditsLeft}
+              setCreditsLeft={setCreditsLeft}
+              setPromoUsed={setPromoUsed}
+            />
           </motion.div>
         ) : (
           <motion.div
@@ -133,149 +282,226 @@ export default function App() {
                     <h1 className="text-xl font-semibold">Hi, Bubtians👋</h1>
                   </div>
                 </div>
-                <motion.button 
-                  onClick={handleLogout}
-                  className="p-2 hover:bg-red-50 rounded-full transition-colors group"
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <svg 
-                    className="w-6 h-6 text-red-600 group-hover:text-red-700 transition-colors" 
-                    fill="none" 
-                    viewBox="0 0 24 24" 
-                    stroke="currentColor"
-                  >
-                    <path 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round" 
-                      strokeWidth={2} 
-                      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" 
-                    />
-                  </svg>
-                </motion.button>
-              </div>
-
-              {/* Enhanced Banner Section */}
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="relative w-full rounded-3xl overflow-hidden mb-8 group"
-              >
-                {/* Background Image with Parallax Effect */}
-                <motion.div
-                  animate={{ 
-                    scale: 1.05,
-                    transition: { duration: 10, repeat: Infinity, repeatType: "reverse" }
-                  }}
-                  className="absolute inset-0"
-                >
-                  <img 
-                    src="/images/stickers/banner.jpg" 
-                    alt="Banner" 
-                    className="w-full h-44 object-cover"
-                  />
-                </motion.div>
-
-                {/* Gradient Overlays */}
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-600/80 to-purple-600/80" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                 
-                {/* Decorative Elements */}
-                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl transform translate-x-16 -translate-y-16" />
-                <div className="absolute bottom-0 left-0 w-24 h-24 bg-blue-400/10 rounded-full blur-2xl transform -translate-x-12 translate-y-12" />
-
-                {/* Content */}
-                <div className="relative p-5 h-44 flex flex-col justify-between">
-                  <div className="space-y-2">
-                    <motion.h1
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.3 }}
-                      className="text-xl font-bold text-white"
-                    >
-                      Student Tools Hub
-                    </motion.h1>
-                    <motion.p
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.4 }}
-                      className="text-white/80 text-xs max-w-[80%]"
-                    >
-                      Streamline your academic journey with our comprehensive suite of tools
-                    </motion.p>
+                {/* Credits Indicator */}
+                <motion.div 
+                  className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 rounded-full border border-blue-100"
+                  whileHover={{ scale: 1.05 }}
+                >
+                  <motion.div
+                    animate={{ scale: [1, 1.2, 1] }}
+                    transition={{ 
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                    className="w-2 h-2 rounded-full bg-blue-400"
+                  />
+                  <div className="flex items-center gap-1">
+                    <span className="text-sm font-medium text-blue-600">{creditsLeft}</span>
+                    <span className="text-xs text-blue-400">credits left</span>
                   </div>
-                  
-                  {/* Get Started Button */}
-                  <div className="flex items-center">
+                  <Tippy 
+                    content="Resets daily at 12:00 AM"
+                    placement="bottom"
+                  >
                     <motion.button
-                      onClick={() => setCurrentTool(tools[0])}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="px-4 py-2 bg-white text-blue-600 text-sm font-medium rounded-xl 
-                        shadow-lg shadow-blue-900/20 hover:bg-blue-50 transition-colors flex items-center gap-2"
+                      whileHover={{ rotate: 180 }}
+                      transition={{ duration: 0.3 }}
+                      className="w-4 h-4 text-blue-400 hover:text-blue-500"
                     >
-                      <span>Get Started</span>
-                      <svg 
-                        className="w-4 h-4" 
-                        fill="none" 
-                        viewBox="0 0 24 24" 
-                        stroke="currentColor"
-                      >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path 
                           strokeLinecap="round" 
                           strokeLinejoin="round" 
                           strokeWidth={2} 
-                          d="M13 7l5 5m0 0l-5 5m5-5H6" 
+                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
                         />
                       </svg>
                     </motion.button>
+                  </Tippy>
+                </motion.div>
+              </div>
+
+              {/* Enhanced Banner Section - Single Video */}
+              <div className="relative w-full h-48 rounded-3xl overflow-hidden mb-4">
+                {/* Video Background */}
+                <div className="absolute inset-0">
+                  <video
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="w-full h-full object-cover transform-gpu"
+                  >
+                    <source 
+                      src="/videos/banner.mp4"
+                      type="video/mp4" 
+                    />
+                  </video>
+                  {/* Removed gradient overlay */}
+                </div>
+
+                {/* Content */}
+                <div className="relative h-full p-5 flex flex-col justify-between">
+                  {/* Animated Badges */}
+                  <div className="flex flex-wrap gap-2">
+                    {bannerBadges.map((badge, index) => (
+                      <motion.div
+                        key={index}
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ 
+                          duration: 0.6,
+                          delay: index * 0.2,
+                          ease: "easeOut"
+                        }}
+                        className={`
+                          px-3 py-1.5 rounded-full backdrop-blur-[2px] 
+                          border border-white/30 flex items-center gap-2
+                          ${badge.type === 'status' 
+                            ? 'bg-black/20 text-white' 
+                            : 'bg-white/20 text-white'
+                          }
+                        `}
+                      >
+                        {badge.type === 'status' && (
+                          <motion.span 
+                            className="w-1.5 h-1.5 rounded-full bg-green-400"
+                            animate={{ scale: [1, 1.2, 1] }}
+                            transition={{ 
+                              duration: 2,
+                              repeat: Infinity,
+                              ease: "easeInOut"
+                            }}
+                          />
+                        )}
+                        {badge.type === 'feature' && (
+                          <motion.svg 
+                            className="w-3 h-3 text-yellow-400"
+                            animate={{ rotate: [0, 15, -15, 0] }}
+                            transition={{ 
+                              duration: 2,
+                              repeat: Infinity,
+                              ease: "easeInOut"
+                            }}
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                          >
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                          </motion.svg>
+                        )}
+                        {badge.type === 'info' && (
+                          <motion.svg
+                            className="w-3 h-3 text-blue-400"
+                            animate={{ scale: [1, 1.1, 1] }}
+                            transition={{ 
+                              duration: 1.5,
+                              repeat: Infinity,
+                              ease: "easeInOut"
+                            }}
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                          >
+                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                          </motion.svg>
+                        )}
+                        <span className="text-xs font-medium whitespace-nowrap">{badge.text}</span>
+                      </motion.div>
+                    ))}
                   </div>
+                </div>
+              </div>
 
-                  {/* Badge - With transparent background */}
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.7 }}
-                    className="absolute bottom-5 right-5"
-                  >
-                    <div className="px-2.5 py-1 bg-black/20 backdrop-blur-[2px] text-white text-[10px] font-medium 
-                      rounded-full border border-white/30 flex items-center"
-                    >
-                      <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse mr-1.5" />
-                      BETA
-                    </div>
-                  </motion.div>
-
-                  {/* Floating Elements */}
-                  <motion.div
-                    animate={{ 
-                      y: [0, -8, 0],
-                      transition: { duration: 2, repeat: Infinity }
-                    }}
-                    className="absolute top-6 right-6"
-                  >
-                    <div className="w-12 h-12 rounded-2xl bg-white/100 backdrop-blur-sm p-3">
+              {/* Promotional Card - Right after banner */}
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                onClick={() => setActiveTab('Settings')}
+                className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-8"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-xl bg-blue-50 p-2.5">
                       <img 
-                        src="/images/stickers/logo.png" 
-                        alt="Tool" 
+                        src="/images/stickers/gift.png"
+                        alt="Premium"
                         className="w-full h-full object-contain"
                       />
                     </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-sm font-medium text-gray-900">Get More Credits</h3>
+                        <span className="px-2 py-0.5 text-xs font-medium text-blue-600 bg-blue-50 rounded-full">
+                          Free
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-500">Use promo code or complete tasks</p>
+                    </div>
+                  </div>
+                  <motion.div
+                    whileHover={{ scale: 1.1 }}
+                    className="w-8 h-8 flex items-center justify-center rounded-xl bg-blue-50 text-blue-600"
+                  >
+                    <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                    </svg>
                   </motion.div>
                 </div>
               </motion.div>
 
-              {/* Tools Section - Simplified with animated GIFs */}
+              {/* Tools Section */}
               <div className="mb-8">
                 <div className="grid grid-cols-2 gap-3">
+                  {/* Available Tools */}
                   {tools.map((tool) => (
                     <motion.button
                       key={tool.id}
                       onClick={() => setCurrentTool(tool)}
-                      className="flex items-center bg-white p-3 rounded-2xl hover:shadow-md 
+                      className="relative flex items-center bg-white p-3 rounded-2xl hover:shadow-md 
                         transition-all duration-200 border border-gray-100"
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.95 }}
                     >
+                      {/* Hot Badge for Cover Page */}
+                      {tool.id === 'cover_generation' && (
+                        <motion.div
+                          initial={{ scale: 0.5, opacity: 0 }}
+                          animate={{ 
+                            scale: 1,
+                            opacity: 1
+                          }}
+                          transition={{
+                            duration: 0.3,
+                            ease: "easeOut"
+                          }}
+                          className="absolute top-3 right-3 w-2.5 h-2.5"
+                        >
+                          <motion.div
+                            animate={{ 
+                              scale: [1, 1.2, 1],
+                            }}
+                            transition={{
+                              duration: 2,
+                              repeat: Infinity,
+                              ease: "easeInOut"
+                            }}
+                            className="w-full h-full rounded-full bg-emerald-400 shadow-sm shadow-emerald-400/50"
+                          >
+                            <motion.div
+                              animate={{ 
+                                opacity: [0.5, 0.2, 0.5]
+                              }}
+                              transition={{
+                                duration: 2,
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                              }}
+                              className="absolute inset-0 rounded-full bg-emerald-400/50 blur-[1px]"
+                            />
+                          </motion.div>
+                        </motion.div>
+                      )}
+                      
                       <div className="w-14 h-14 rounded-xl bg-blue-50/50 p-2.5 mr-3 overflow-hidden">
                         <img 
                           src={tool.icon} 
@@ -288,154 +514,248 @@ export default function App() {
                       </span>
                     </motion.button>
                   ))}
+
+                  {/* Upcoming Tools */}
+                  <AnimatePresence>
+                    {showMoreTools && upcomingTools.map((tool) => (
+                      <motion.div
+                        key={tool.id}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.8 }}
+                        className="relative flex items-center bg-white/60 p-3 rounded-2xl border 
+                          border-gray-100 cursor-not-allowed"
+                      >
+                        <div className="w-14 h-14 rounded-xl bg-blue-50/50 p-2.5 mr-3 overflow-hidden opacity-50">
+                          <img 
+                            src={tool.icon} 
+                            alt={tool.name}
+                            className="w-full h-full object-contain mix-blend-multiply filter grayscale" 
+                          />
+                        </div>
+                        <div className="flex items-center justify-between flex-1">
+                          <span className="text-sm font-medium text-gray-400">
+                            {tool.name}
+                          </span>
+                          <motion.div
+                            whileHover={{ scale: 1.1 }}
+                            className="w-5 h-5 flex items-center justify-center text-blue-400"
+                          >
+                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8zm.5-13H11v6l5.2 3.2.8-1.3-4.5-2.7V7z"/>
+                            </svg>
+                          </motion.div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </div>
+
+                {/* More Tools Button */}
+                <motion.button
+                  onClick={() => setShowMoreTools(!showMoreTools)}
+                  className="w-full mt-4 py-2 px-4 bg-white rounded-xl border border-gray-100 
+                    hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 
+                    text-sm text-gray-600"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <span>{showMoreTools ? 'Show Less' : 'More Tools'}</span>
+                  <motion.svg
+                    animate={{ rotate: showMoreTools ? 180 : 0 }}
+                    className="w-4 h-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round" 
+                      strokeWidth={2} 
+                      d="M19 9l-7 7-7-7" 
+                    />
+                  </motion.svg>
+                </motion.button>
+              </div>
+
+              {/* Recent Activity Section */}
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-lg font-semibold text-gray-900">Recent Creations</h2>
+                  {recentActivities.length > 0 && (
+                    <motion.button
+                      onClick={() => setRecentActivities([])}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="text-xs text-gray-500 hover:text-gray-700"
+                    >
+                      Clear All
+                    </motion.button>
+                  )}
+                </div>
+
+                <div className="space-y-3">
+                  {recentActivities.length === 0 ? (
+                    <div className="bg-gray-50 rounded-2xl p-6 text-center">
+                      <img 
+                        src="/images/stickers/empty.png" 
+                        alt="No activities" 
+                        className="w-16 h-16 mx-auto mb-3 opacity-50"
+                      />
+                      <p className="text-sm text-gray-500">No recent activities yet</p>
+                    </div>
+                  ) : (
+                    <AnimatePresence mode="popLayout">
+                      {recentActivities.map((activity) => (
+                        <motion.div
+                          key={activity.id}
+                          layout
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, x: -100 }}
+                          className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100"
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-3">
+                              <div className="w-10 h-10 rounded-xl bg-red-50/50 p-2 flex items-center justify-center">
+                                {documentIcons.pdf}
+                              </div>
+                              <div>
+                                <h3 className="text-sm font-medium text-gray-900">
+                                  {activity.details.filename || 'Cover Page'}
+                                </h3>
+                                <div className="flex items-center gap-2">
+                                  <p className="text-xs text-gray-500">
+                                    {new Date(activity.timestamp).toLocaleDateString('en-US', {
+                                      month: 'short',
+                                      day: 'numeric',
+                                      hour: '2-digit',
+                                      minute: '2-digit'
+                                    })}
+                                  </p>
+                                  <span className="text-xs text-blue-500 bg-blue-50 px-1.5 
+                                    py-0.5 rounded-full">
+                                    {activity.details.coverType}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Only Download Button */}
+                            <motion.a
+                              href={`/documents/${activity.details.filename}.pdf`}
+                              download
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.9 }}
+                              className="w-8 h-8 flex items-center justify-center rounded-full 
+                                bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
+                            >
+                              <svg 
+                                className="w-4 h-4" 
+                                viewBox="0 0 20 20" 
+                                fill="currentColor"
+                              >
+                                <path 
+                                  fillRule="evenodd" 
+                                  d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" 
+                                  clipRule="evenodd" 
+                                />
+                              </svg>
+                            </motion.a>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </AnimatePresence>
+                  )}
                 </div>
               </div>
 
-              {/* Information Section - Reduced bottom margin */}
-              <div className="mb-4">
-                <h2 className="text-lg font-semibold mb-4">Information</h2>
-                
-                <div className="space-y-2">
+              {/* After Recent Activity Section */}
+              {!promoUsed && (
+                <div className="mt-8">
                   <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.2 }}
+                    whileHover={{ scale: 1.02 }}
+                    onClick={() => setActiveTab('Settings')}
+                    className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100"
                   >
-                    <Accordion
-                      items={[
-                        {
-                          icon: (
-                            <motion.svg 
-                              className="w-5 h-5 text-blue-600" 
-                              fill="none" 
-                              viewBox="0 0 24 24" 
-                              stroke="currentColor"
-                              whileHover={{ scale: 1.1 }}
-                            >
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
-                              />
-                            </motion.svg>
-                          ),
-                          title: "About BUBT Tools",
-                          content: "A collection of essential tools designed specifically for BUBT students to manage their academic tasks efficiently."
-                        },
-                        {
-                          icon: (
-                            <motion.svg 
-                              className="w-5 h-5 text-green-600" 
-                              fill="none" 
-                              viewBox="0 0 24 24" 
-                              stroke="currentColor"
-                              whileHover={{ scale: 1.1 }}
-                            >
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" 
-                              />
-                            </motion.svg>
-                          ),
-                          title: "How to Use",
-                          content: "Select any tool from above, input your information, and get instant results. All tools are designed to be simple and user-friendly."
-                        },
-                        {
-                          icon: (
-                            <motion.svg 
-                              className="w-5 h-5 text-purple-600" 
-                              fill="none" 
-                              viewBox="0 0 24 24" 
-                              stroke="currentColor"
-                              whileHover={{ scale: 1.1 }}
-                            >
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" 
-                              />
-                            </motion.svg>
-                          ),
-                          title: "Features",
-                          content: (
-                            <ul className="space-y-1">
-                              <li className="flex items-center space-x-2">
-                                <span className="w-1 h-1 rounded-full bg-purple-400" />
-                                <span>Professional cover page generation</span>
-                              </li>
-                              <li className="flex items-center space-x-2">
-                                <span className="w-1 h-1 rounded-full bg-purple-400" />
-                                <span>GPA calculation and tracking</span>
-                              </li>
-                              <li className="flex items-center space-x-2">
-                                <span className="w-1 h-1 rounded-full bg-purple-400" />
-                                <span>Timetable planning</span>
-                              </li>
-                              <li className="flex items-center space-x-2">
-                                <span className="w-1 h-1 rounded-full bg-purple-400" />
-                                <span>Result management</span>
-                              </li>
-                            </ul>
-                          )
-                        }
-                      ]}
-                    />
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-xl bg-blue-50 p-2.5">
+                          <img 
+                            src="/images/stickers/gift.png"
+                            alt="Premium"
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h3 className="text-sm font-medium text-gray-900">Get More Credits</h3>
+                            <span className="px-2 py-0.5 text-xs font-medium text-blue-600 bg-blue-50 rounded-full">
+                              Free
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-500">Use promo code or complete tasks</p>
+                        </div>
+                      </div>
+                      <motion.div
+                        whileHover={{ scale: 1.1 }}
+                        className="w-8 h-8 flex items-center justify-center rounded-xl bg-blue-50 text-blue-600"
+                      >
+                        <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                        </svg>
+                      </motion.div>
+                    </div>
                   </motion.div>
                 </div>
-              </div>
-            </div>
-
-            {/* Developer Info - Reduced top padding */}
-            <div className="mt-auto pt-2">
-              <div className="bg-white rounded-2xl p-3 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center min-w-0">
-                    <img 
-                      src="https://github.com/kallolx.png" 
-                      alt="Developer" 
-                      className="w-8 h-8 rounded-full border-2 border-blue-100 flex-shrink-0"
-                    />
-                    <div className="ml-2 min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <p className="font-medium text-sm text-gray-900 truncate">Kallol</p>
-                        <span className="text-[10px] text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded-full">
-                          @kallolx
-                        </span>
-                      </div>
-                      <p className="text-[10px] text-gray-500">Frontend Developer</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-1.5 flex-shrink-0">
-                    <motion.a
-                      href="https://github.com/kallolx"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center px-2 py-1 bg-gray-900 text-white 
-                        rounded-md text-xs font-medium hover:bg-gray-800 transition-colors"
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
-                        <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
-                      </svg>
-                    </motion.a>
-
-                    <motion.a
-                      href="https://portfolio-five-coral-31.vercel.app/"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center px-2 py-1 bg-blue-600 text-white 
-                        rounded-md text-xs font-medium hover:bg-blue-700 transition-colors"
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                          d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" 
-                        />
-                      </svg>
-                    </motion.a>
-                  </div>
-                </div>
-              </div>
+              )}
             </div>
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Mobile Bottom Navigation */}
+      <motion.div 
+        initial={{ y: 100 }}
+        animate={{ y: 0 }}
+        className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-lg border-t 
+          border-gray-100 pb-safe-area shadow-lg shadow-black/5"
+      >
+        <div className="max-w-md mx-auto px-6 py-2">
+          <div className="flex items-center justify-around">
+            {navItems.map((item) => (
+              <motion.button
+                key={item.name}
+                onClick={() => {
+                  setActiveTab(item.name);
+                  if (item.name === 'Home') {
+                    setCurrentTool(null);
+                  } else if (item.name === 'Create') {
+                    setCurrentTool(tools[0]);
+                  } else if (item.name === 'Settings') {
+                    setCurrentTool({
+                      component: Settings,
+                      name: 'Settings'
+                    });
+                  }
+                }}
+                className={`relative py-2 ${item.name === 'Create' ? 'px-6' : 'px-3'}`}
+                whileHover={item.name !== 'Create' ? { y: -2 } : { scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <motion.div
+                  className="flex flex-col items-center"
+                  animate={{ 
+                    scale: activeTab === item.name ? 1 : 1
+                  }}
+                >
+                  {item.icon(activeTab === item.name)}
+                </motion.div>
+              </motion.button>
+            ))}
+          </div>
+        </div>
+      </motion.div>
     </div>
   )
 }
