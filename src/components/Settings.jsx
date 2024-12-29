@@ -149,22 +149,6 @@ export default function Settings({ onBack, creditsLeft, setCreditsLeft }) {
     }
   }, []);
 
-  const resetAllProgress = () => {
-    // Clear all stored data
-    localStorage.removeItem('completedMemberTasks');
-    localStorage.removeItem('isMember');
-    localStorage.removeItem('dailyCreditLimit');
-    localStorage.removeItem('usedPromoCode');
-    
-    // Reset states
-    setCompletedMemberTasks([]);
-    setIsMember(false);
-    setPromoUsed(false);
-    setPromoSuccess(false);
-    setShowMembershipTasks(false);
-    setCreditsLeft(5);
-  };
-
   const getCreditLimit = (isMember) => isMember ? 10 : 5;
 
   return (
@@ -201,14 +185,6 @@ export default function Settings({ onBack, creditsLeft, setCreditsLeft }) {
                   />
                   <span className="text-sm font-medium text-blue-600">{creditsLeft}</span>
                 </motion.div>
-                
-                <motion.button
-                  onClick={resetAllProgress}
-                  whileTap={{ scale: 0.95 }}
-                  className="p-1.5 text-xs bg-red-50 text-red-500 rounded-lg hover:bg-red-100"
-                >
-                  Reset
-                </motion.button>
               </div>
             </div>
           </div>
